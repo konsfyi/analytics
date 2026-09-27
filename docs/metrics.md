@@ -2,12 +2,12 @@
 
 Every figure comes out of one function, `summarize(hits, from, to)`, over the
 rows of one window. The windows are the last 24 hours (`/analytics`), 7 days
-(`?week`) and 30 days (`?month`).
+(`?week`), 30 days (`?month`) and 90 days (`?quarter`).
 
 ## The tiles
 
 - **Visitors**: distinct visitor ids among the views. The id changes every
-  day, so over 7 or 30 days this counts **person-days**: someone who came on
+  day, so over 7, 30 or 90 days this counts **person-days**: someone who came on
   three days counts three times. Plausible and Umami make the same trade.
 - **Views**: page views.
 - **Visits**: distinct visit ids among all hits. A visit is one tab, from its

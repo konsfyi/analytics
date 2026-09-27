@@ -1,6 +1,6 @@
 {
   "name": "@konsfyi/analytics",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Tiny cookieless analytics: one endpoint, one dashboard.",
   "keywords": [
     "analytics",

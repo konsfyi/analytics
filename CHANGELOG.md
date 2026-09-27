@@ -1,7 +1,9 @@
 # Changelog
 
-## Unreleased
+## 0.2.0 (2026-09-27)
 
+- A fourth window, 90 days (`?quarter`), read by the day like 30 days. The
+  dashboard's window tabs show it; `windowOf()` knows it.
 - Installable straight from GitHub: `npm install github:konsfyi/analytics`
   builds the package on install (a `prepare` script). The README has a new
   "Without npm" section covering that, forks and a local copy.

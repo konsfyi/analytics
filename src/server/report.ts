@@ -22,7 +22,7 @@ export function reporter(settings: Settings, log: Log) {
   /**
    * The numbers over HTTP, for the dashboard to ask again without a
    * navigation — which is what lets it move the bars rather than redraw them.
-   * `?week` and `?month` pick the window; the day is the default.
+   * `?week`, `?month` and `?quarter` pick the window; the day is the default.
    *
    * Refused reads are a 404, not a 401: an endpoint that answers "wrong
    * password" has told you there is a password.

@@ -129,6 +129,9 @@ describe("summarize", () => {
     expect(day.series.length).toBeGreaterThan(20);
     expect(month.series.length).toBeGreaterThan(28);
     expect(month.series[1].at - month.series[0].at).toBe(DAY);
+    const quarter = summarize([], to - 90 * DAY, to);
+    expect(quarter.series.length).toBeGreaterThan(88);
+    expect(quarter.series[1].at - quarter.series[0].at).toBe(DAY);
   });
 
   it("counts events by name, and only events", () => {

@@ -80,6 +80,8 @@ describe("report", () => {
   it("reads the window out of the URL", async () => {
     const day = await (await ask({ public: true }, "https://e.com/api/analytics")).json();
     const month = await (await ask({ public: true }, "https://e.com/api/analytics?month")).json();
+    const quarter = await (await ask({ public: true }, "https://e.com/api/analytics?quarter")).json();
     expect(month.from).toBeLessThan(day.from);
+    expect(quarter.from).toBeLessThan(month.from);
   });
 });

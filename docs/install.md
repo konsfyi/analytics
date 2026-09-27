@@ -47,7 +47,7 @@ export const analytics = createAnalytics({
 
 - `collect(req)`: the endpoint. Always answers 204.
 - `report(req)`: one window's numbers as JSON, behind the read gate.
-  `?week` and `?month` pick the window; the default is the last 24 hours.
+  `?week`, `?month` and `?quarter` pick the window; the default is the last 24 hours.
 - `numbers(window)`: the same figures as `report`, called directly, for a page
   that renders the first set on the server.
 - `mayRead(header, token)`: whether a request may see the numbers.
@@ -98,7 +98,7 @@ figures. Give it the first set from the server and it keeps itself current.
 | Prop | What it is |
 | --- | --- |
 | `initial` | The first numbers, from `analytics.numbers(key)` |
-| `initialWindow` | `"24h"`, `"7d"` or `"30d"`, usually `windowOf(searchParams)` |
+| `initialWindow` | `"24h"`, `"7d"`, `"30d"` or `"90d"`, usually `windowOf(searchParams)` |
 | `backend` | `analytics.backend()`, named in the footer |
 | `title` | The heading. Default `Analytics` |
 | `at` | Where `report` is mounted. Default `/api/analytics` |
