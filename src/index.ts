@@ -20,4 +20,14 @@ export {
 } from "./parse.js";
 export { duration, summarize, type Count, type Summary } from "./summary.js";
 export type { Beacon, Hit, HitKind, Numbers } from "./types.js";
-export { WINDOWS, WINDOW_KEYS, windowOf, type Window } from "./windows.js";
+export {
+  DEFAULT_WINDOWS,
+  MAX_WINDOWS,
+  WINDOW_PRESETS,
+  resolveWindows,
+  windowOf,
+  type Window,
+  type WindowOption,
+  type WindowPreset,
+  type WindowSpec,
+} from "./windows.js";

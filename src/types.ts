@@ -57,4 +57,8 @@ export type Numbers = {
   /** Whether the window held more rows than one summary folds (MAX_ROWS). */
   capped: boolean;
   summary: Summary;
+  /** The window these figures are for. */
+  window: string;
+  /** Every window the site shows, in order — what the dashboard draws as tabs. */
+  windows: { key: string; label: string; query: string }[];
 };

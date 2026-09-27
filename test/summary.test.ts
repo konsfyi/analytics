@@ -132,6 +132,8 @@ describe("summarize", () => {
     const quarter = summarize([], to - 90 * DAY, to);
     expect(quarter.series.length).toBeGreaterThan(88);
     expect(quarter.series[1].at - quarter.series[0].at).toBe(DAY);
+    const year = summarize([], to - 365 * DAY, to);
+    expect(year.series[1].at - year.series[0].at).toBe(7 * DAY);
   });
 
   it("counts events by name, and only events", () => {

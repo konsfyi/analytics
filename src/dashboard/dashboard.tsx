@@ -4,7 +4,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { MAX_ROWS } from "../config.js";
 import { duration, type Count } from "../summary.js";
 import type { Numbers as Figures } from "../types.js";
-import { WINDOWS, WINDOW_KEYS, type Window } from "../windows.js";
+import type { Window } from "../windows.js";
 import { Scramble } from "./scramble.js";
 import { useNumbers, type Live } from "./use-numbers.js";
 
@@ -185,17 +185,20 @@ function Chart({
 /** The window switcher, for the plain version. A host with its own tabs passes
     `setWindow` to them instead and never renders this. */
 export function WindowTabs({
+  windows,
   value,
   onChange,
   labels,
 }: {
+  /** The site's windows — `numbers.windows`, or `windows` from useNumbers(). */
+  windows: Figures["windows"];
   value: Window;
   onChange: (w: Window) => void;
   labels?: Partial<Record<Window, ReactNode>>;
 }) {
   return (
     <div role="tablist" className="an-tabs">
-      {WINDOW_KEYS.map((w) => (
+      {windows.map(({ key: w, label }) => (
         <button
           key={w}
           role="tab"
@@ -207,7 +210,7 @@ export function WindowTabs({
             if (e.detail > 0) e.currentTarget.blur();
           }}
         >
-          {labels?.[w] ?? WINDOWS[w].label}
+          {labels?.[w] ?? label}
         </button>
       ))}
     </div>
@@ -289,14 +292,15 @@ export function Dashboard({
   path,
 }: {
   initial: Figures;
-  initialWindow: Window;
+  /** Defaults to the window `initial` is for. */
+  initialWindow?: Window;
   backend: string;
   title?: string;
   /** Where to ask for the numbers, and where the window lives in the URL. */
   at?: string;
   path?: string;
 }) {
-  const { numbers, window: key, setWindow, live }: Live = useNumbers(
+  const { numbers, window: key, windows, setWindow, live }: Live = useNumbers(
     initial,
     initialWindow,
     at,
@@ -306,7 +310,10 @@ export function Dashboard({
     <div className="an">
       <header className="an-header">
         <h1 className="an-title">{title}</h1>
-        <WindowTabs value={key} onChange={setWindow} />
+        {/* one window is no choice at all: no tabs */}
+        {windows.length > 1 ? (
+          <WindowTabs windows={windows} value={key} onChange={setWindow} />
+        ) : null}
       </header>
       <Numbers numbers={numbers} live={live} backend={backend} />
     </div>

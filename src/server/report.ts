@@ -1,6 +1,6 @@
 import { summarize } from "../summary.js";
 import type { Numbers } from "../types.js";
-import { WINDOWS, windowOf, type Window } from "../windows.js";
+import { windowOf, type Window } from "../windows.js";
 import { mayRead } from "./gate.js";
 import type { Log } from "./log.js";
 import type { Settings } from "./settings.js";
@@ -11,18 +11,34 @@ import type { Settings } from "./settings.js";
 // itself.
 
 export function reporter(settings: Settings, log: Log) {
-  /** The figures for one window, worked out now. */
-  async function numbers(key: Window): Promise<Numbers> {
+  /** The window a URL asks for, among the ones this site shows. */
+  const pick = (search: string | Record<string, unknown>): Window =>
+    windowOf(search, settings.windows());
+
+  /**
+   * The figures for one window, worked out now. A key the site does not show
+   * gets the first window — never an error, never a window nobody configured.
+   */
+  async function numbers(key?: Window): Promise<Numbers> {
+    const windows = settings.windows();
+    const spec = windows.find((w) => w.key === key) ?? windows[0];
     const now = Date.now();
-    const from = now - WINDOWS[key].ms;
+    const from = now - spec.ms;
     const { hits, capped } = await log.read(from);
-    return { from, capped, summary: summarize(hits, from, now) };
+    return {
+      from,
+      capped,
+      summary: summarize(hits, from, now),
+      window: spec.key,
+      windows: windows.map(({ key, label, query }) => ({ key, label, query })),
+    };
   }
 
   /**
    * The numbers over HTTP, for the dashboard to ask again without a
    * navigation — which is what lets it move the bars rather than redraw them.
-   * `?week`, `?month` and `?quarter` pick the window; the day is the default.
+   * The URL picks the window (`?window=<key>`, or a preset's `?week`,
+   * `?month` …); the first configured window is the default.
    *
    * Refused reads are a 404, not a 401: an endpoint that answers "wrong
    * password" has told you there is a password.
@@ -38,10 +54,10 @@ export function reporter(settings: Settings, log: Log) {
     )
       return new Response(null, { status: 404 });
 
-    return Response.json(await numbers(windowOf(url.search)), {
+    return Response.json(await numbers(pick(url.search)), {
       headers: { "cache-control": "no-store" },
     });
   }
 
-  return { numbers, report };
+  return { numbers, report, windowOf: pick };
 }

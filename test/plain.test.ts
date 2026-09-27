@@ -5,6 +5,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { Dashboard } from "../src/dashboard/dashboard.js";
+import { resolveWindows } from "../src/windows.js";
 import { summarize } from "../src/summary.js";
 import type { Hit } from "../src/types.js";
 
@@ -100,12 +101,13 @@ describe("the dashboard on its own", () => {
       from,
       capped: false,
       summary: summarize(log(now), from, now),
+      window: "24h",
+      windows: resolveWindows().map(({ key, label, query }) => ({ key, label, query })),
     };
 
     const body = renderToStaticMarkup(
       createElement(Dashboard, {
         initial,
-        initialWindow: "24h" as const,
         backend: "database",
       }),
     );

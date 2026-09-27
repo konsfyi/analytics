@@ -1,13 +1,15 @@
 # What the numbers mean
 
 Every figure comes out of one function, `summarize(hits, from, to)`, over the
-rows of one window. The windows are the last 24 hours (`/analytics`), 7 days
-(`?week`), 30 days (`?month`) and 90 days (`?quarter`).
+rows of one window. Which windows a site shows is its own choice (the
+`windows` option); by default they are the last 24 hours (`/analytics`), 7 days
+(`?week`) and 30 days (`?month`), with 90 days (`?quarter`) and 12 months
+(`?year`) as presets.
 
 ## The tiles
 
 - **Visitors**: distinct visitor ids among the views. The id changes every
-  day, so over 7, 30 or 90 days this counts **person-days**: someone who came on
+  day, so over any window longer than a day this counts **person-days**: someone who came on
   three days counts three times. Plausible and Umami make the same trade.
 - **Views**: page views.
 - **Visits**: distinct visit ids among all hits. A visit is one tab, from its
@@ -22,8 +24,9 @@ rows of one window. The windows are the last 24 hours (`/analytics`), 7 days
 
 ## The chart
 
-Views per hour for the 24-hour window, per day for the longer two. The first
-column is the first whole hour (or day) inside the window, so the leftmost
+Views per hour for a window up to a day and a half, per day up to four months,
+per week beyond that. The first
+column is the first whole hour (or day, or week) inside the window, so the leftmost
 column is never a partial one.
 
 ## The lists

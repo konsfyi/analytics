@@ -77,10 +77,13 @@ export function summarize(hits: Hit[], from: number, to: number): Summary {
     (v) => v.views <= 1 && (v.ms || v.last - v.first) < 10_000,
   ).length;
 
-  // The shape of the window decides the step: a day is read by the hour, a
-  // longer stretch by the day.
+  // The shape of the window decides the step: a day is read by the hour, up to
+  // four months by the day, anything longer by the week — a year of daily bars
+  // is 365 slivers, not a chart.
   const span = to - from;
-  const step = span <= 36 * 3600_000 ? 3600_000 : 86_400_000;
+  const DAY = 86_400_000;
+  const step =
+    span <= 36 * 3600_000 ? 3600_000 : span <= 120 * DAY ? DAY : 7 * DAY;
   const buckets = new Map<number, { views: number; visitors: Set<string> }>();
   // Start at the first WHOLE step inside the window. The one before it began
   // before `from`, so it can only ever hold the part of an hour (or a day) that

@@ -42,14 +42,21 @@ export const analytics = createAnalytics({
 | `countryHeader` | `ANALYTICS_COUNTRY_HEADER` | none | A header to read the country from, tried before the known ones. |
 | `dir` | `ANALYTICS_DIR` | `.analytics` in the working directory | Where the file store keeps its files. Add it to `.gitignore`. |
 | `store` | none | picked from `databaseUrl` | A `Store` of your own. |
+| `windows` | `ANALYTICS_WINDOWS` (preset keys, comma-separated) | `["24h", "7d", "30d"]` | The dashboard's tabs, in order, at most eight: presets (`24h`, `7d`, `30d`, `90d`, `12m`) or `{ key, label, ms }` of your own. The first is the page itself. A list that can't work (an unknown preset, a key used twice) throws when the server first reads it. |
 
 `createAnalytics()` returns:
 
 - `collect(req)`: the endpoint. Always answers 204.
-- `report(req)`: one window's numbers as JSON, behind the read gate.
-  `?week`, `?month` and `?quarter` pick the window; the default is the last 24 hours.
-- `numbers(window)`: the same figures as `report`, called directly, for a page
-  that renders the first set on the server.
+- `report(req)`: one window's numbers as JSON, behind the read gate. The URL
+  picks the window (`?window=<key>`, or a preset's `?week`, `?month`,
+  `?quarter`, `?year`); anything else gets the first window.
+- `numbers(key?)`: the same figures as `report`, called directly, for a page
+  that renders the first set on the server. The result carries `window` (which
+  one it is) and `windows` (the site's list), which is what the dashboard's
+  tabs are drawn from.
+- `windowOf(search)`: which of the site's windows a page's search string or
+  search params ask for. Hand the key to `numbers()`.
+- `windows()`: the site's windows, resolved.
 - `mayRead(header, token)`: whether a request may see the numbers.
 - `backend()`: which store is in use, as the dashboard names it.
 - `store()`: the store itself.
@@ -98,7 +105,7 @@ figures. Give it the first set from the server and it keeps itself current.
 | Prop | What it is |
 | --- | --- |
 | `initial` | The first numbers, from `analytics.numbers(key)` |
-| `initialWindow` | `"24h"`, `"7d"`, `"30d"` or `"90d"`, usually `windowOf(searchParams)` |
+| `initialWindow` | Optional. Defaults to the window `initial` is for |
 | `backend` | `analytics.backend()`, named in the footer |
 | `title` | The heading. Default `Analytics` |
 | `at` | Where `report` is mounted. Default `/api/analytics` |
@@ -107,9 +114,13 @@ figures. Give it the first set from the server and it keeps itself current.
 A private dashboard opened with `?token=` keeps the token when it refreshes
 and when it switches windows, so the page and the route can share one gate.
 
-For a site with its own chrome, `useNumbers(initial, initialWindow, at, path)`
-drives the state and `<Numbers numbers live backend />` draws the figures. Put
-the window switcher wherever you like; `<WindowTabs>` is there if you want the
-plain one.
+The tabs are the site's `windows` (see the options above), sent with the
+numbers; with one window there are none.
+
+For a site with its own chrome, `useNumbers(initial, initialWindow?, at, path)`
+drives the state and returns `windows` alongside the numbers;
+`<Numbers numbers live backend />` draws the figures. Put the window switcher
+wherever you like; `<WindowTabs windows value onChange />` is there if you want
+the plain one.
 
 Import the stylesheet once: `import "@konsfyi/analytics/dashboard.css"`.

@@ -20,7 +20,7 @@ export function createAnalytics(options: Options = {}) {
   const set = settings(options);
   const rows = log(set, options.store);
   const limit = limiter();
-  const { numbers, report } = reporter(set, rows);
+  const { numbers, report, windowOf } = reporter(set, rows);
 
   return {
     /** POST: one beacon in, always 204 out. Mount it where the tracker posts. */
@@ -29,6 +29,13 @@ export function createAnalytics(options: Options = {}) {
     report,
     /** One window's numbers, for a page that renders the first set itself. */
     numbers,
+    /**
+     * Which of this site's windows a URL asks for — give it the page's search
+     * string or search params, then hand the key to numbers().
+     */
+    windowOf,
+    /** This site's windows, in order. */
+    windows: () => set.windows(),
     /**
      * Whether a request may see the numbers — for a page to check before it
      * renders the dashboard. Give it a header reader and the `?token=` value.

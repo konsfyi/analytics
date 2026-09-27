@@ -1,5 +1,10 @@
 import { createHash, randomBytes } from "node:crypto";
 import type { Store } from "../stores/store.js";
+import {
+  resolveWindows,
+  type WindowOption,
+  type WindowSpec,
+} from "../windows.js";
 
 // The server's half of the settings: the salt the visitor hash is built on,
 // where the rows go, who may read them, and how far the request headers may be
@@ -47,6 +52,14 @@ export type Options = {
   dir?: string;
   /** A store of your own, instead of the one picked from `databaseUrl`. */
   store?: Store;
+  /**
+   * The windows the dashboard offers, in order — preset keys (`"24h"`, `"7d"`,
+   * `"30d"`, `"90d"`, `"12m"`) or windows of your own
+   * (`{ key: "2w", label: "2 weeks", ms: 14 * 86_400_000 }`). The first is the
+   * page itself. Defaults to 24 hours, 7 days and 30 days.
+   * `ANALYTICS_WINDOWS` (preset keys, comma-separated).
+   */
+  windows?: WindowOption[];
 };
 
 const env = (name: string): string | undefined => {
@@ -73,6 +86,7 @@ export type Settings = ReturnType<typeof settings>;
 /** Options first, the environment second, a safe default last. */
 export function settings(options: Options = {}) {
   let derived = "";
+  let windows: WindowSpec[] | null = null;
 
   const databaseUrl = () =>
     options.databaseUrl ??
@@ -90,6 +104,17 @@ export function settings(options: Options = {}) {
     databaseUrl,
 
     dir: () => options.dir ?? env("ANALYTICS_DIR") ?? "",
+
+    /** The windows, checked once and kept (a bad list throws on first use). */
+    windows(): WindowSpec[] {
+      return (windows ??= resolveWindows(
+        options.windows ??
+          (env("ANALYTICS_WINDOWS")
+            ?.split(",")
+            .map((w) => w.trim())
+            .filter(Boolean) as WindowOption[] | undefined),
+      ));
+    },
 
     countryHeader: () =>
       options.countryHeader ?? env("ANALYTICS_COUNTRY_HEADER") ?? "",

@@ -104,7 +104,6 @@ And the dashboard, wherever you want it:
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { Dashboard } from "@konsfyi/analytics/dashboard";
-import { windowOf } from "@konsfyi/analytics";
 import "@konsfyi/analytics/dashboard.css";
 import { analytics } from "@/lib/analytics";
 
@@ -120,11 +119,9 @@ export default async function Page({
   const token = typeof asked.token === "string" ? asked.token : null;
   if (!analytics.mayRead((name) => head.get(name), token)) notFound();
 
-  const key = windowOf(asked);
   return (
     <Dashboard
-      initial={await analytics.numbers(key)}
-      initialWindow={key}
+      initial={await analytics.numbers(analytics.windowOf(asked))}
       backend={analytics.backend()}
     />
   );
@@ -133,6 +130,25 @@ export default async function Page({
 
 A complete site is in [examples/next-minimal](examples/next-minimal). The full
 set of options is in [docs/install.md](docs/install.md).
+
+### Choosing the windows
+
+The dashboard's tabs are yours to pick: which windows, in what order, how many
+(up to eight). Say so once, on the server; the dashboard draws whatever the
+server sends.
+
+```ts
+export const analytics = createAnalytics({
+  site: "example.com",
+  windows: ["24h", "7d", "30d", "90d", { key: "2w", label: "2 weeks", ms: 14 * 86_400_000 }],
+});
+```
+
+The presets are `24h`, `7d`, `30d`, `90d` and `12m`; anything else is a key, a
+label and a length. The default is `24h`, `7d` and `30d`. The first window is
+the page itself, and each of the others has its own URL (`?week`, `?month`,
+`?quarter`, `?year`, `?window=2w`) so it can be linked to. A single window
+shows no tabs at all.
 
 ## Anywhere else
 

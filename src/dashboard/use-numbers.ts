@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Numbers } from "../types.js";
-import { WINDOWS, windowOf, type Window } from "../windows.js";
+import { windowOf, type Window } from "../windows.js";
 
 // Keeping the figures current, which is the whole reason the dashboard is on
 // the client: it asks the route for a window's numbers every 30 seconds and
@@ -13,6 +13,10 @@ import { WINDOWS, windowOf, type Window } from "../windows.js";
 // It is a hook rather than part of the dashboard so that a host can put the
 // window switcher wherever its own chrome wants it (play.kons.design puts it
 // in its page header) while the same code keeps the numbers moving.
+//
+// Which windows exist is not decided here: the server sends its list with every
+// set of numbers (`numbers.windows`), and this reads the URL and builds links
+// against that list.
 
 const EVERY = 30_000; // how often the numbers are asked for again
 
@@ -28,6 +32,8 @@ const withToken = (url: string) => {
 export type Live = {
   numbers: Numbers;
   window: Window;
+  /** The site's windows, in order — what a switcher should offer. */
+  windows: Numbers["windows"];
   setWindow: (w: Window) => void;
   /** Whether a change should animate. False until the figures on screen belong
       to the window the URL asks for — see below. */
@@ -36,13 +42,20 @@ export type Live = {
 
 export function useNumbers(
   initial: Numbers,
-  initialWindow: Window,
+  /** Defaults to the window the initial numbers are for. */
+  initialWindow: Window = initial.window,
   /** Where to ask, and where the window lives in the URL. */
   at = "/api/analytics",
   path = "/analytics",
 ): Live {
   const [key, setKey] = useState<Window>(initialWindow);
   const [numbers, setNumbers] = useState(initial);
+  // The list is the server's, and it does not change while the page is open.
+  const [windows] = useState(initial.windows);
+  const query = useCallback(
+    (w: Window) => windows.find((x) => x.key === w)?.query ?? "",
+    [windows],
+  );
   // Nothing animates until the figures on screen belong to the window the URL
   // asks for. They may not at first: the page is rendered on the server for
   // whatever the URL said when it was fetched, and this can mount again over a
@@ -59,7 +72,7 @@ export function useNumbers(
     async (w: Window) => {
       const mine = ++asked.current;
       try {
-        const res = await fetch(withToken(`${at}${WINDOWS[w].query}`), {
+        const res = await fetch(withToken(`${at}${query(w)}`), {
           cache: "no-store",
         });
         if (res.ok && mine === asked.current)
@@ -68,7 +81,7 @@ export function useNumbers(
         /* the next tick will try again */
       }
     },
-    [at],
+    [at, query],
   );
 
   // Every 30 seconds, and once more whenever the tab is looked at again.
@@ -94,16 +107,16 @@ export function useNumbers(
     (w: Window) => {
       if (w === showing.current) return;
       setKey(w);
-      window.history.pushState(null, "", withToken(`${path}${WINDOWS[w].query}`));
+      window.history.pushState(null, "", withToken(`${path}${query(w)}`));
       void load(w);
     },
-    [load, path],
+    [load, path, query],
   );
 
   useEffect(() => {
     let alive = true;
     const follow = () => {
-      const w = windowOf(window.location.search);
+      const w = windowOf(window.location.search, windows);
       if (w === showing.current) return;
       setKey(w);
       void load(w);
@@ -111,7 +124,7 @@ export function useNumbers(
     window.addEventListener("popstate", follow);
     // On mount the URL decides; only once its numbers are up does anything
     // start animating.
-    const wanted = windowOf(window.location.search);
+    const wanted = windowOf(window.location.search, windows);
     if (wanted === initialWindow) {
       // already the right numbers: from the next frame on, changes animate
       const t = setTimeout(() => alive && setLive(true), 0);
@@ -134,7 +147,7 @@ export function useNumbers(
       alive = false;
       window.removeEventListener("popstate", follow);
     };
-  }, [initialWindow, load]);
+  }, [initialWindow, load, windows]);
 
-  return { numbers, window: key, setWindow, live };
+  return { numbers, window: key, windows, setWindow, live };
 }

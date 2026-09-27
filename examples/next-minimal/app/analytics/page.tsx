@@ -1,6 +1,5 @@
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
-import { windowOf } from "@konsfyi/analytics";
 import { Dashboard } from "@konsfyi/analytics/dashboard";
 import "@konsfyi/analytics/dashboard.css";
 import { analytics } from "@/lib/analytics";
@@ -17,11 +16,9 @@ export default async function AnalyticsPage({
   const token = typeof asked.token === "string" ? asked.token : null;
   if (!analytics.mayRead((name) => head.get(name), token)) notFound();
 
-  const key = windowOf(asked);
   return (
     <Dashboard
-      initial={await analytics.numbers(key)}
-      initialWindow={key}
+      initial={await analytics.numbers(analytics.windowOf(asked))}
       backend={analytics.backend()}
     />
   );
