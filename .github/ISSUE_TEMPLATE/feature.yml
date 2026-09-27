@@ -1,0 +1,19 @@
+name: Idea
+description: Something the package could do
+labels: [idea]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The package stays small, cookieless and without identity across days — see CONTRIBUTING.md for what it won't grow into.
+  - type: textarea
+    id: need
+    attributes:
+      label: What you need
+      description: The problem, not the solution. What would you do with it?
+    validations:
+      required: true
+  - type: textarea
+    id: shape
+    attributes:
+      label: How it might work

@@ -1,0 +1,350 @@
+/* The dashboard's own styling. No Tailwind, no tokens from any host, nothing
+   to install: one class on the outside and everything under it is described
+   here. A host that has its own colours and type redefines the custom
+   properties on `.an` and the whole thing follows — which is exactly what
+   play.kons.design does, and why the same dashboard can sit inside a designed site and on its
+   own in a blank page.
+
+   Set in Inter, or whatever the host is already set in: --an-font is the only
+   thing that decides, no font is loaded here, and nothing else is assumed
+   about the typeface. */
+
+.an {
+  /* Type. Four steps and a mono, given as a size and its line height. */
+  --an-font: Inter, ui-sans-serif, system-ui, sans-serif;
+  --an-font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --an-text-xs: 0.8125rem;
+  --an-text-xs-line: 1.25rem;
+  --an-text-sm: 0.9375rem;
+  --an-text-sm-line: 1.5rem;
+  --an-text-lg: 1rem;
+  --an-text-lg-line: 1.5rem;
+  --an-text-xl: 1.25rem;
+  --an-text-xl-line: 1.75rem;
+  --an-text-mono: 0.8125rem;
+  --an-text-mono-line: 1.25rem;
+
+  /* Tracking, Tailwind's tracking-tight on everything set in --an-font; the
+     mono figures keep their own. Set --an-tracking to normal to drop it. */
+  --an-tracking: -0.025em;
+  --an-tracking-caps: var(--an-tracking); /* the uppercase list titles */
+  --an-tracking-mono: normal;
+
+  /* Colour, as roles rather than a palette: five greys and the white a raised
+     surface sits on. A dark host redefines these six and is done. */
+  --an-page: #f8fafc; /* the surface behind a row, used for a hover */
+  --an-ink: #1e293b; /* figures and headings */
+  --an-body: #475569; /* a row's label */
+  --an-nav: #64748b; /* everything secondary */
+  --an-fill: #f1f5f9; /* a bar, a tile, a button */
+  --an-fill-hover: #e2e8f0; /* a chart column */
+  --an-white: #ffffff; /* the tab that is chosen */
+
+  --an-radius: 0.5rem;
+  --an-spring: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --an-shadow:
+    0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 0 0 0.5px rgba(0, 0, 0, 0.08);
+
+  /* What surrounds the figures. A host with its own page padding sets these
+     to 0 and puts the dashboard where it likes. */
+  --an-pad-x: 1.25rem;
+  --an-pad-top: 1.25rem;
+  --an-pad-bottom: 3rem;
+
+  font-family: var(--an-font);
+  letter-spacing: var(--an-tracking);
+  color: var(--an-ink);
+}
+
+.an *,
+.an *::before,
+.an *::after {
+  box-sizing: border-box;
+}
+
+/* ---------- the figures ---------- */
+
+.an-numbers {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+  padding: var(--an-pad-top) var(--an-pad-x) var(--an-pad-bottom);
+}
+
+.an-tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.an-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  border-radius: var(--an-radius);
+  background: var(--an-fill);
+  padding: 0.75rem 1rem;
+}
+
+.an-tile-label {
+  font-size: var(--an-text-xs);
+  line-height: var(--an-text-xs-line);
+  color: var(--an-nav);
+  text-transform: uppercase;
+}
+
+.an-tile-value {
+  font-family: var(--an-font-mono);
+  letter-spacing: var(--an-tracking-mono);
+  font-size: var(--an-text-xl);
+  line-height: var(--an-text-xl-line);
+  font-weight: 600;
+  color: var(--an-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- the chart ---------- */
+
+.an-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.25rem;
+  height: 6rem;
+}
+
+.an-column {
+  flex: 1 1 0;
+  min-width: 0;
+  border-radius: 0.125rem 0.125rem 0 0;
+  background: var(--an-fill-hover);
+  transition: height 500ms var(--an-spring);
+}
+
+/* ---------- the lists ---------- */
+
+.an-lists {
+  display: grid;
+  gap: 3rem;
+}
+
+.an-list {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.an-list-title {
+  margin: 0;
+  font-size: var(--an-text-xs);
+  line-height: var(--an-text-xs-line);
+  font-weight: 600;
+  letter-spacing: var(--an-tracking-caps);
+  text-transform: uppercase;
+  color: var(--an-ink);
+}
+
+.an-rows,
+.an-list-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.an-rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A row arriving opens its own space: 0fr → 1fr on a grid row, so everything
+   under it slides down rather than jumping to make room. */
+.an-row {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 300ms var(--an-spring);
+}
+
+.an-row[data-open="true"] {
+  grid-template-rows: 1fr;
+}
+
+.an-row-clip {
+  overflow: hidden;
+}
+
+.an-row-body {
+  position: relative;
+  display: flex;
+  height: 2.25rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border-radius: var(--an-radius);
+  padding: 0 0.75rem;
+  font-size: var(--an-text-sm);
+  line-height: var(--an-text-sm-line);
+  transition: background-color 150ms;
+}
+
+.an-row-body:hover {
+  background: color-mix(in srgb, var(--an-page) 80%, transparent);
+}
+
+.an-bar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0;
+  border-radius: var(--an-radius);
+  background: var(--an-fill);
+  transition: width 500ms var(--an-spring);
+}
+
+.an-row-label {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--an-body);
+}
+
+.an-row-count {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  font-family: var(--an-font-mono);
+  letter-spacing: var(--an-tracking-mono);
+  font-size: var(--an-text-mono);
+  line-height: var(--an-text-mono-line);
+  color: var(--an-nav);
+  font-variant-numeric: tabular-nums;
+}
+
+.an-row-share {
+  margin-left: 0.5rem;
+  opacity: 0.6;
+}
+
+.an-empty,
+.an-note {
+  margin: 0;
+  font-size: var(--an-text-sm);
+  line-height: var(--an-text-sm-line);
+  color: var(--an-nav);
+}
+
+/* ---------- the one button, and the window tabs ---------- */
+
+.an-more {
+  display: inline-flex;
+  width: 100%;
+  height: 2.25rem;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 0;
+  border-radius: var(--an-radius);
+  background: var(--an-fill);
+  padding: 0 0.75rem;
+  font-family: inherit;
+  letter-spacing: inherit;
+  font-size: var(--an-text-sm);
+  line-height: var(--an-text-sm-line);
+  font-weight: 500;
+  white-space: nowrap;
+  color: var(--an-nav);
+  transition: color 150ms;
+  user-select: none;
+}
+
+.an-more:hover {
+  color: var(--an-ink);
+}
+
+.an-header {
+  display: flex;
+  height: 4.75rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--an-pad-x);
+  gap: 1rem;
+}
+
+.an-title {
+  margin: 0;
+  font-size: var(--an-text-lg);
+  line-height: var(--an-text-lg-line);
+  font-weight: 600;
+  color: var(--an-ink);
+}
+
+.an-tabs {
+  display: inline-flex;
+  height: 2.25rem;
+  align-items: center;
+  gap: 0.125rem;
+  border-radius: var(--an-radius);
+  background: var(--an-fill);
+  padding: 0.125rem;
+  user-select: none;
+}
+
+.an-tab {
+  height: 2rem;
+  cursor: pointer;
+  border: 0;
+  border-radius: calc(var(--an-radius) - 0.125rem);
+  background: transparent;
+  padding: 0 0.625rem;
+  font-family: inherit;
+  letter-spacing: inherit;
+  font-size: var(--an-text-sm);
+  line-height: var(--an-text-sm-line);
+  color: var(--an-nav);
+  transition:
+    color 150ms,
+    background-color 150ms;
+}
+
+.an-tab:hover {
+  color: var(--an-ink);
+}
+
+.an-tab[aria-selected="true"] {
+  background: var(--an-white);
+  color: var(--an-ink);
+  box-shadow: var(--an-shadow);
+}
+
+/* ---------- the shapes the figures take at each width ---------- */
+
+@media (min-width: 48rem) {
+  .an-lists {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 64rem) {
+  .an-tiles {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 80rem) {
+  .an-lists {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Somebody who would rather nothing moved gets the numbers without the
+   arriving: they are still dealt, just instantly. */
+@media (prefers-reduced-motion: reduce) {
+  .an-row,
+  .an-bar,
+  .an-column {
+    transition-duration: 1ms;
+  }
+}
